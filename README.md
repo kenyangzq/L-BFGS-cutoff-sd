@@ -1,8 +1,8 @@
-# L-BFGS-Cutoff-s2
+# L-BFGS-Cutoff-sd
 
 ## Introduction 
-This is the final version for the cutoff implementation of L-BFGS algorithm for minimizing energy on 3d sphere. It uses angle coordinate
-and can only work on 3d sphere so far. 
+This is the final version for the cutoff implementation of L-BFGS algorithm for minimizing energy on s^d sphere. It uses angle coordinate
+and can only work on s^d sphere so far. 
 
 The program is compiled using cmake. If the system hasn't installed cmake, then the program may not be compiled in directory other than the clone. 
 
