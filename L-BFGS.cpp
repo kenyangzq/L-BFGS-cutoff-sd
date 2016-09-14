@@ -14,7 +14,6 @@
 #include "problem.h"
 #include "lbfgssolver.h"
 
-#define PI 3.1415926
 
 using namespace std;
 
@@ -74,10 +73,27 @@ string ParseControlFile(ifstream & inputfile, int & dim, int &numpts, double & s
     return filename;
 }
 
+
+void ToVector(const cppoptlib::Matrix<double> & M, cppoptlib::Vector<double> & V )
+{
+    int c = M.cols();
+    for (int i=0; i<M.rows(); ++i )
+        V.segment(i*c,c) = M.row(i);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 double dist_squared(const cppoptlib::Vector<double> & angles1,const cppoptlib::Vector<double> & angles2)
 {
     return (2-2*(sin(angles1(1))*sin(angles2(1))*cos(angles1(0)-angles2(0))+cos(angles1(1))*cos(angles2(1))));
 }
+
+
 
 void To3D(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords)
 {
@@ -86,12 +102,7 @@ void To3D(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & 
     coords(2) = cos(angles(1));
 }
 
-void ToVector(const cppoptlib::Matrix<double> & M, cppoptlib::Vector<double> & V )
-{
-    int c = M.cols();
-    for (int i=0; i<M.rows(); ++i )
-        V.segment(i*c,c) = M.row(i);
-}
+
 
 void ComputeJacobian(const double & theta, const double & phi, cppoptlib::Matrix<double> & temp){
     //x = sin(phi) cos(theta)
@@ -109,58 +120,6 @@ void ComputeJacobian(const double & theta, const double & phi, cppoptlib::Matrix
 }
 
 
-//void AngleGradient(const cppoptlib::Vector<double> & all_angles, const int & pt_index, const double & s_power, cppoptlib::Vector<double> & output)
-//{
-//    
-//    cppoptlib::Vector<double> temp_sum(3), temp_pt(3), temp_i(3), temp(3);
-//    cppoptlib::Matrix<double> temp_jacobian(3,2);
-//    temp_sum.setZero();
-//    To3D(all_angles.segment<2>(pt_index*2), temp_pt);
-//    for (int i=0; i<pt_index; ++i)
-//    {
-//        
-//        To3D(all_angles.segment<2>(i*2), temp_i);
-//        temp = temp_pt - temp_i;
-//        temp_sum += pow(temp.dot(temp), -1-s_power/2.0) * temp;
-//    }
-//    for (int i=pt_index+1; i<all_angles.rows()/2; ++i)
-//    {
-//        To3D(all_angles.segment<2>(i*2), temp_i);
-//        temp = temp_pt - temp_i;
-//        temp_sum += pow(temp.dot(temp), -1-s_power/2.0) * temp;
-//    }
-//    temp_sum *= -s_power;
-//    ComputeJacobian(all_angles(pt_index*2+0), all_angles(pt_index*2+1), temp_jacobian);
-//    output.segment<2>(pt_index*2) = temp_sum * temp_jacobian;
-//}
-//
-//void FullGradient(const cppoptlib::Vector<double> & all_angles, const double & s_power, cppoptlib::Vector<double> & output)
-//{
-//    for(int i=0; i<all_angles.size()/2; ++i)
-//    {
-//        AngleGradient(all_angles, i, s_power, output);
-//    }
-//}
-
-
-
-
-double Energy(const cppoptlib::Vector<double> & V, const double s_power, const int dim)
-{
-    // V contains spherical coordinates
-    double e = 0;
-    for (int i=0; i<V.size()/dim; ++i)
-    {
-        for (int j=0; j<i; ++j)
-        {
-            e += pow(dist_squared(V.segment<2>(i*dim), V.segment<2>(j*dim)), -s_power/2.0);
-        }
-    }
-    return 2.0 * e;
-}
-
-
-
 
 void ToAngles(cppoptlib::Matrix<double> & all_points, cppoptlib::Matrix<double> & all_angles)
 {
@@ -174,6 +133,42 @@ void ToAngles(cppoptlib::Matrix<double> & all_points, cppoptlib::Matrix<double> 
         all_angles(i,1) = acos(z/r);
     }
 }
+
+
+
+// do cutoff need to change?
+
+double cutoff(double distance, double cutoff_radius){
+    return pow(1-pow(distance/cutoff_radius, 4), 3);
+}
+
+double cutoffPrime(double distance, double cutoff_radius){
+    double t = distance / cutoff_radius;
+    return 12*pow(1-pow(t,4),2)*pow(t,3)/distance/cutoff_radius;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+double Energy(const cppoptlib::Vector<double> & V, const double s_power, const int dim)
+{
+    // V contains spherical coordinates
+    double e = 0;
+    for (int i=0; i<V.size()/dim; ++i)
+    {
+        for (int j=0; j<i; ++j)
+        {
+            e += pow(dist_squared(V.segment(i*dim, dim), V.segment(j*dim, dim)), -s_power/2.0);
+        }
+    }
+    return 2.0 * e;
+}
+
 
 
 
@@ -194,21 +189,18 @@ void writeFile (ofstream & outputfile, string name, cppoptlib::Vector<double> V,
     for (int i =0; i < V.rows()/c; i++) {
         tmp = V.segment(i*c, c);
         To3D(tmp, tmp2);
-        outputfile << tmp2(0) << "\t" << tmp2(1) << "\t" << tmp2(2) << "\n";
+        
+        
+        outputfile << tmp2(0);
+        for (int j = 1; j < dim; j++) {
+            outputfile << "\t" << tmp2(j);
+        }
+        outputfile << "\n";
     }
 }
 
 
 
-
-double cutoff(double distance, double cutoff_radius){
-    return pow(1-pow(distance/cutoff_radius, 4), 3);
-}
-
-double cutoffPrime(double distance, double cutoff_radius){
-    double t = distance / cutoff_radius;
-    return 12*pow(1-pow(t,4),2)*pow(t,3)/distance/cutoff_radius;
-}
 
 
 
@@ -221,12 +213,12 @@ class minimizeEnergy : public cppoptlib::Problem<double> {
     int dim;
     int numpts;
     cppoptlib::Matrix<double> Cubes;
-    cppoptlib::Matrix<double> pts3D;
+    cppoptlib::Matrix<double> ptsND;
     
     
 public:
     minimizeEnergy(double r, double s_value, int d, int n, int c, int c_cube, int max_neighbor)
-    :cutoff_radius(r), s(s_value), cubes_per_side(c), dim(d), numpts(n), Cubes(max_neighbor+1, c_cube), pts3D(dim, numpts){};
+    :cutoff_radius(r), s(s_value), cubes_per_side(c), dim(d), numpts(n), Cubes(max_neighbor+1, c_cube), ptsND(dim, numpts){};
     
     
     double TruncatedEnergy(const cppoptlib::Vector<double> & V, const cppoptlib::Vector<int> & neighbors,
@@ -244,8 +236,10 @@ public:
     double value(const cppoptlib::Vector<double> &x) 
     {
         double total_energy = 0;
+        
         //int max_neighbor = Cubes.rows();
         cppoptlib::Vector<int> neighbor_cube_indices (pow(3, dim));
+        
         // get the 3d points matrix -- pts
         // assign points to cubes
         // the first field in each column is the number of points inside that column.
@@ -281,6 +275,7 @@ public:
         cppoptlib::Matrix<double> temp_jacobian(dim, dim_angle);
         temp_sum.setZero();
         BuildIndex(x);
+        
         // find the neighbor_cube_indices for each cubes and calculate the energy.
         for (int index_cube = 0; index_cube < Cubes.cols(); ++index_cube)  
         {
@@ -301,7 +296,7 @@ public:
                         for (int l = 1; l <= points_in_other_cube; l++) 
                         {
                             int other_point_index = Cubes(l, tmp);
-                            temp = pts3D.col(point_index) - pts3D.col(other_point_index);
+                            temp = ptsND.col(point_index) - ptsND.col(other_point_index);
                             distance = sqrt(temp.dot(temp));
                             if (other_point_index != point_index && distance < cutoff_radius)
                             {
@@ -391,9 +386,9 @@ void minimizeEnergy::BuildIndex(const cppoptlib::Vector<double> & x){
     for (int i=0; i<numpts; ++i)
     {
         To3D(x.segment((dim-1)*i, dim-1), temp_vector);
-        pts3D.col(i) = temp_vector.transpose();
+        ptsND.col(i) = temp_vector.transpose();
         int max_neighbor = Cubes.rows();
-        int cube_index = Point2Cube(pts3D.col(i));
+        int cube_index = Point2Cube(ptsND.col(i));
         int tmp_numpts = Cubes(0, cube_index) + 1;
         if (tmp_numpts >= max_neighbor) {
             cout << "Warning: exceeding maximum neighbor; ignore point " << i << endl;
@@ -403,8 +398,12 @@ void minimizeEnergy::BuildIndex(const cppoptlib::Vector<double> & x){
         }
     }
     //cout << Cubes.transpose() << endl;
-    //cout << Point2Cube(pts3D.col(4)) << endl;
+    //cout << Point2Cube(ptsND.col(4)) << endl;
 }
+
+
+
+
 
 
 // generate random sphere configuration
@@ -469,7 +468,7 @@ int main() {
         int lineNumber = 0;
         while (!pointfile.eof() && lineNumber < numpts)
         {
-            for (int i=0; i<3;  ++i) pointfile >> X(lineNumber, i);
+            for (int i=0; i<dim;  ++i) pointfile >> X(lineNumber, i);
             lineNumber++;
         }
         pointfile.close();
@@ -478,7 +477,7 @@ int main() {
     else
     {
         srand(time(0));
-        double apoint[3];
+        double apoint[dim];
         for (int i = 0; i < numpts; i++) {
             randptSphere(apoint, dim);
             for (int j = 0; j < dim; j++) {
