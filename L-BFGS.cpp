@@ -1,3 +1,4 @@
+// dist_squared
 //
 //
 // TODO: dimension d
@@ -95,7 +96,7 @@ void ToVector(const cppoptlib::Matrix<double> & M, cppoptlib::Vector<double> & V
 void ToND(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords) {
     double tmp = 1;
     coords[0] = cos(angles[0]);
-    for (int i = 1; i < coords.size(); i++) {
+    for (int i = 1; i < coords.size()-1; i++) {
 	   	tmp *= sin(angles[i-1]);
         coords[i] = cos(angles[i])*tmp;
 //        cout << coords[i] << endl;
@@ -104,12 +105,12 @@ void ToND(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & 
 }
 
 
-
-void ToAngle(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords) {
+// angels are indexed 0 to dim-2
+void ToAngle(const cppoptlib::Vector<double> & angels, cppoptlib::Vector<double> & coords) {
     int dim = coords.size();
     double squaresum = pow(coords[dim - 1],2);
     
-    for (int i = dim - 2; i >= 0; i++) {
+    for (int i = dim - 2; i >= 0; i--) {
         squaresum += pow(coords[i], 2);
         angels[i] = acos(coords[i]/sqrt(squaresum));
     }
