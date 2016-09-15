@@ -15,7 +15,7 @@
 #include "problem.h"
 #include "lbfgssolver.h"
 
-#define PI 3.1415926
+#define PI 3.141592653589793
 
 using namespace std;
 
@@ -484,12 +484,19 @@ void randptSphere(double coordinates[], int dim){
 /////////////////////////////////////////////////////////////////////////////////
 int main() {
     
-    
-    cppoptlib::Vector<double> test1(2), test2(3);
-    test1[0] = PI/2;
-    test1[1] = PI/2;
-    ToND(test1, test2);
-    cout << test2 << endl;
+   int  dim = 20; 
+    cppoptlib::Vector<double> test1(dim), test2(dim);
+    cppoptlib::Vector<double> vec(dim+1);
+    test1 = PI/4.0 * cppoptlib::Vector<double>::Ones(20);
+    test2 =  3.0*PI/4.0 * cppoptlib::Vector<double>::Ones(20);
+    test2[dim-1] = 5.0*PI/4.0;
+    cout << test1.transpose() << endl;
+    cout << test2.transpose() << endl;
+    cout << dist_squared(test1, test2) << endl;
+
+    ToND(test2, vec);
+    ToAngle(test1, vec);
+    cout << (test2-test1).norm() << endl;
     
     
     
