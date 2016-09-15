@@ -135,7 +135,10 @@ void ToAngle(cppoptlib::Vector<double> & angels, const cppoptlib::Vector<double>
 
 double dist_squared(const cppoptlib::Vector<double> & angles1,const cppoptlib::Vector<double> & angles2)
 {
-    return (2-2*(sin(angles1(1))*sin(angles2(1))*cos(angles1(0)-angles2(0))+cos(angles1(1))*cos(angles2(1))));
+    cppoptlib::Vector<double> temp2(angles2.size()+1), temp1(angles1.size()+1);
+    ToND(angles2, temp2);
+    ToND(angles1, temp1);
+    return (temp2- temp1).squaredNorm();
 }
 
 
