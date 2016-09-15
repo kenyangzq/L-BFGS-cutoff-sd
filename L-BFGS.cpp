@@ -14,6 +14,7 @@
 #include "problem.h"
 #include "lbfgssolver.h"
 
+#define PI 3.1415926
 
 using namespace std;
 
@@ -84,6 +85,35 @@ void ToVector(const cppoptlib::Matrix<double> & M, cppoptlib::Vector<double> & V
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+// NOTE!!!!
+// the first n-2 angles range from 0 to PI, while the last angle range from 0 to 2 PI,
+// in 3d the coordinate is permuted in the order of z, x, y
+
+void ToND(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords) {
+    double tmp = 1;
+    coords[0] = cos(angles[0]);
+    for (int i = 1; i < coords.size(); i++) {
+	   	tmp *= sin(angles[i-1]);
+        coords[i] = cos(angles[i])*tmp;
+//        cout << coords[i] << endl;
+    }
+    coords[coords.size()-1] = tmp*sin(angles[angles.size()-1]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -437,82 +467,91 @@ void randptSphere(double coordinates[], int dim){
 int main() {
     
     
+    cppoptlib::Vector<double> test1(2), test2(3);
+    test1[0] = PI/2;
+    test1[1] = PI/2;
+    ToND(test1, test2);
+    cout << test2 << endl;
     
-    // declare all the parameter used.
-    double s, radius;
-    int dim = 0, numpts=0, c=0, cubes_per_side=0, max_neighbor=0, numFile=0, numIteration=0;
-    bool infile;
-    ifstream inputfile, pointfile;
-    ofstream outputfile;
-
-    
-    openFile(inputfile, "control.inp");
-    string filename = ParseControlFile(inputfile, dim, numpts, s, c, max_neighbor, numFile, numIteration, infile);
-    inputfile.close();
-    
-    
-    
-    radius = c*pow(numpts,-1.0/(dim-1));
-    cubes_per_side = ceil(2/radius);
     
     
     
     
-    cppoptlib::Matrix<double> X(numpts, dim), A(numpts, dim-1);
-    cppoptlib::Vector<double> V(A.size()), G(A.size()), GFull(A.size());
-    
-    // read points
-    if (infile)
-    {
-        openFile(pointfile, filename);
-        int lineNumber = 0;
-        while (!pointfile.eof() && lineNumber < numpts)
-        {
-            for (int i=0; i<dim;  ++i) pointfile >> X(lineNumber, i);
-            lineNumber++;
-        }
-        pointfile.close();
-    }
-    // generate random configuration
-    else
-    {
-        srand(time(0));
-        double apoint[dim];
-        for (int i = 0; i < numpts; i++) {
-            randptSphere(apoint, dim);
-            for (int j = 0; j < dim; j++) {
-                X(i, j) = apoint[j];
-            }
-        }
-    }
-    
-    
-    
-
-    ToAngles(X,A);
-    ToVector(A,V);
-    
-    minimizeEnergy f(radius, s, dim, numpts, cubes_per_side, pow(cubes_per_side, dim), max_neighbor);
-    cout << "Energy without cutoff:      " << Energy(V, s, dim-1) << endl;
-    cout << "Energy with cutoff:         " << f(V) << endl;
-
-    
-    cppoptlib::LbfgsSolver<double> solver;
-    
-    solver.setNumFile(numFile);
-    solver.setNumIteration(numIteration);
-//    solver.setFileName(filename);
-    
-    solver.minimize(f, V);
-    
-    
-    cout << "Energy now: " << f(V) << endl;
-    cout << "Full energy now: " << Energy(V, s, dim-1) << endl;
-    
-    
-    
-    writeFile(outputfile, "output.txt", V, dim);
-    return 0;
+    // declare all the parameter used.
+//    double s, radius;
+//    int dim = 0, numpts=0, c=0, cubes_per_side=0, max_neighbor=0, numFile=0, numIteration=0;
+//    bool infile;
+//    ifstream inputfile, pointfile;
+//    ofstream outputfile;
+//
+//    
+//    openFile(inputfile, "control.inp");
+//    string filename = ParseControlFile(inputfile, dim, numpts, s, c, max_neighbor, numFile, numIteration, infile);
+//    inputfile.close();
+//    
+//    
+//    
+//    radius = c*pow(numpts,-1.0/(dim-1));
+//    cubes_per_side = ceil(2/radius);
+//    
+//    
+//    
+//    
+//    cppoptlib::Matrix<double> X(numpts, dim), A(numpts, dim-1);
+//    cppoptlib::Vector<double> V(A.size()), G(A.size()), GFull(A.size());
+//    
+//    // read points
+//    if (infile)
+//    {
+//        openFile(pointfile, filename);
+//        int lineNumber = 0;
+//        while (!pointfile.eof() && lineNumber < numpts)
+//        {
+//            for (int i=0; i<dim;  ++i) pointfile >> X(lineNumber, i);
+//            lineNumber++;
+//        }
+//        pointfile.close();
+//    }
+//    // generate random configuration
+//    else
+//    {
+//        srand(time(0));
+//        double apoint[dim];
+//        for (int i = 0; i < numpts; i++) {
+//            randptSphere(apoint, dim);
+//            for (int j = 0; j < dim; j++) {
+//                X(i, j) = apoint[j];
+//            }
+//        }
+//    }
+//    
+//    
+//    
+//
+//    ToAngles(X,A);
+//    ToVector(A,V);
+//    
+//    minimizeEnergy f(radius, s, dim, numpts, cubes_per_side, pow(cubes_per_side, dim), max_neighbor);
+//    cout << "Energy without cutoff:      " << Energy(V, s, dim-1) << endl;
+//    cout << "Energy with cutoff:         " << f(V) << endl;
+//
+//    
+//    cppoptlib::LbfgsSolver<double> solver;
+//    
+//    solver.setNumFile(numFile);
+//    solver.setNumIteration(numIteration);
+////    solver.setFileName(filename);
+//    
+//    solver.minimize(f, V);
+//    
+//    
+//    cout << "Energy now: " << f(V) << endl;
+//    cout << "Full energy now: " << Energy(V, s, dim-1) << endl;
+//    
+//    
+//    
+//    writeFile(outputfile, "output.txt", V, dim);
+//    return 0;
 }
 
 
