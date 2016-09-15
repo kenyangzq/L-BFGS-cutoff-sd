@@ -105,7 +105,20 @@ void ToND(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & 
 
 
 
-
+void ToAngle(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords) {
+    int dim = coords.size();
+    double squaresum = pow(coords[dim - 1],2);
+    
+    for (int i = dim - 2; i >= 0; i++) {
+        squaresum += pow(coords[i], 2);
+        angels[i] = acos(coords[i]/sqrt(squaresum));
+    }
+    
+    if (coords[dim-1] < 0) {
+        angels[dim-2] = 2 * PI - angels[dim-2];
+    }
+    
+}
 
 
 
