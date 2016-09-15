@@ -106,7 +106,7 @@ void ToND(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & 
 
 
 // angels are indexed 0 to dim-2
-void ToAngle(const cppoptlib::Vector<double> & angels, cppoptlib::Vector<double> & coords) {
+void ToAngle(cppoptlib::Vector<double> & angels, const cppoptlib::Vector<double> & coords) {
     int dim = coords.size();
     double squaresum = pow(coords[dim - 1],2);
     
@@ -120,6 +120,7 @@ void ToAngle(const cppoptlib::Vector<double> & angels, cppoptlib::Vector<double>
     }
     
 }
+
 
 
 
