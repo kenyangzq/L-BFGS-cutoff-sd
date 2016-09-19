@@ -28,7 +28,8 @@ void openFile (ifstream & inputfile, string name){
     }
 }
 
-string ParseControlFile(ifstream & inputfile, int & dim, int &numpts, double & s, int & c, int & max_neighbor, int & numFile, int & numIteration, bool & infile){
+string ParseControlFile(ifstream & inputfile, int & dim, int &numpts, double & s, int & c, 
+		int & max_neighbor, int & numFile, int & numIteration, bool & infile){
     
     
     infile = false;
