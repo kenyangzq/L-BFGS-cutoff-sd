@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/ken/Desktop/research/External Library/L-BFGS/cutoff-final-sd",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++    -I\"/Users/ken/Desktop/research/External Library/L-BFGS/cutoff-final-sd/./include/eigen\" -I\"/Users/ken/Desktop/research/External Library/L-BFGS/cutoff-final-sd/./include/cppoptlib\"   -std=c++11 -O3 -DNDEBUG -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk   -o CMakeFiles/L-BFGS.dir/L-BFGS.cpp.o -c \"/Users/ken/Desktop/research/External Library/L-BFGS/cutoff-final-sd/L-BFGS.cpp\"",
+  "file": "/Users/ken/Desktop/research/External Library/L-BFGS/cutoff-final-sd/L-BFGS.cpp"
+}
+]

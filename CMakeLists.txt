@@ -5,7 +5,7 @@ project(LBFGS)
 #
 #set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_EXPORT_COMPILE_COMMANDS 1 )
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1 )
 
 # check existence of c++11 compiler
 include(CheckCXXCompilerFlag)
