@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/alex/Recherche/Code/BFGS/L-BFGS-cutoff-sd",
-  "command": "/usr/bin/c++     -std=c++11 -O3 -DNDEBUG -I/home/alex/Recherche/Code/BFGS/L-BFGS-cutoff-sd/./include/eigen -I/home/alex/Recherche/Code/BFGS/L-BFGS-cutoff-sd/./include/cppoptlib    -o CMakeFiles/L-BFGS.dir/L-BFGS.cpp.o -c /home/alex/Recherche/Code/BFGS/L-BFGS-cutoff-sd/L-BFGS.cpp",
-  "file": "/home/alex/Recherche/Code/BFGS/L-BFGS-cutoff-sd/L-BFGS.cpp"
-}
-]
