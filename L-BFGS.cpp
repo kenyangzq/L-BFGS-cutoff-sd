@@ -124,7 +124,7 @@ void ToAngle(cppoptlib::Vector<double> & angels, const cppoptlib::Vector<double>
 
 void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matrix<double> &temp) {
 	// all angles range from 0 to PI except for the last one, which range from 0 to 2PI.
-	// The Jacobian Matrix should be size n-1 by n;
+	// The Jacobian Matrix should be size n by n-1;
 	// Multiply by a -tan value if it's differentiating cos
 	// Multiply by a cot value if it's differentiating sin
 	//
@@ -135,7 +135,7 @@ void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matri
 	cppoptlib::Vector<double> ndvector(n);
 	ToND(angles,ndvector);
 	// main loop
-	for (int i = 0; i < angles.size(); i++) 
+	for (int i = 0; i < n-1; i++) 
     {
 		// calculate the diagonal value
 		temp(i,i) = ndvector(i)*(-tan(angles(i)));
@@ -146,7 +146,7 @@ void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matri
 			temp(i,j) = ndvector(i)/tan(angles(j));
 		}
 		// do the last row of the matrix here, separately
-		temp(angles.size(),i) = ndvector(n-1)/tan(angles(i));
+		temp(n-1,i) = ndvector(n-1)/tan(angles(i));
 	}
 }
 		
