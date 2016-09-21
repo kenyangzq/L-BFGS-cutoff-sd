@@ -2,12 +2,9 @@
 
 ## Introduction 
 This is the final version for the cutoff implementation of L-BFGS algorithm for minimizing energy on s^d sphere. It uses angle coordinate
-and can only work on s^d sphere so far. 
+and is being developed and tested right now.
 
-The program is compiled using cmake. If the system hasn't installed cmake, then the program may not be compiled in directory other than the clone. 
-
-
-The code was mainly completed with Alex Vlasiuk in 2016 summer.
+The program is compiled using cmake. The code was mainly completed with Alex Vlasiuk in 2016 fall.
 
 ## Algorithm
 The code is implemented mainly based on the L-BFGS algorithm implemented by PatWie from https://github.com/PatWie/CppNumericalSolvers.git.
