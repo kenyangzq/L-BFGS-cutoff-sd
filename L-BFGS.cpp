@@ -122,19 +122,11 @@ void ToAngle(cppoptlib::Vector<double> & angels, const cppoptlib::Vector<double>
     
 }
 
-
-
-
-
-
-
-
-
 void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matrix<double> &temp) {
 	// all angles range from 0 to PI except for the last one, which range from 0 to 2PI.
-	// The Jacobian Matrix should be size n by n-1;
-	// Multiply by a -tan value if it's differenciating cos
-	// Multiply by a cot value if it's differenciating sin
+	// The Jacobian Matrix should be size n-1 by n;
+	// Multiply by a -tan value if it's differentiating cos
+	// Multiply by a cot value if it's differentiating sin
 	//
 	// Note that the Jacobian Matrix in this case is lower diagonal
 	//
@@ -143,16 +135,18 @@ void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matri
 	cppoptlib::Vector<double> ndvector(n);
 	ToND(angles,ndvector);
 	// main loop
-	for (int i = 0; i < n - 1; i++) {
+	for (int i = 0; i < angles.size(); i++) 
+    {
 		// calculate the diagonal value
 		temp(i,i) = ndvector(i)*(-tan(angles(i)));
-		for(int j = 0; j < i; j++) {
-			// caculate the part in the lower diagonal matrix
-			// except the last line of the matrix
-			temp(i,j) = ndvector(i)/tan(angles(i-1));
+		for(int j = 0; j < i; j++) 
+        {
+			// calculate the part in the lower diagonal matrix
+			// except the last row of the matrix
+			temp(i,j) = ndvector(i)/tan(angles(j));
 		}
-		// do the last line of the matrix here, seperately
-		temp(n-1,i) = ndvector(i)/tan(angles(i));
+		// do the last row of the matrix here, separately
+		temp(angles.size(),i) = ndvector(n-1)/tan(angles(i));
 	}
 }
 		
@@ -522,7 +516,13 @@ int main() {
     ToND(test2, vec);
     ToAngle(test1, vec);
     cout << (test2-test1).norm() << endl;
-    
+    Eigen::MatrixXf m(4,4);
+    m <<  1, 2, 3, 4,
+        5, 6, 7, 8,
+        9,10,11,12,
+       13,14,15,16;
+    cout << m << endl;
+    cout << m(3,2) << endl;
     
     
     
