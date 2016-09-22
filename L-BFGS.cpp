@@ -509,9 +509,9 @@ int main() {
     test1 = PI/4.0 * cppoptlib::Vector<double>::Ones(20);
     test2 =  3.0*PI/4.0 * cppoptlib::Vector<double>::Ones(20);
     test2[dim-1] = 5.0*PI/4.0;
-    cout << test1.transpose() << endl;
-    cout << test2.transpose() << endl;
-    cout << dist_squared(test1, test2) << endl;
+//    cout << test1.transpose() << endl;
+//    cout << test2.transpose() << endl;
+//    cout << dist_squared(test1, test2) << endl;
 
     ToND(test2, vec);
     ToAngle(test1, vec);
@@ -521,9 +521,17 @@ int main() {
         5, 6, 7, 8,
         9,10,11,12,
        13,14,15,16;
-    cout << m << endl;
+//    cout << m << endl;
     cout << m(3,2) << endl;
     
+	// test the ComputeJacobianN
+	cppoptlib::Vector<double> ang1(5);
+	ang1 << PI/3, PI/6, PI/4, PI/3, 3*PI/4;
+	cppoptlib::Matrix<double> jac(6,5);
+	ComputeJacobianN(ang1,jac);
+	cout << jac << endl;
+
+
     
     
     
