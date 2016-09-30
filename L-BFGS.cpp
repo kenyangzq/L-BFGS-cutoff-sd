@@ -119,7 +119,7 @@ void ToAngle(cppoptlib::Vector<double> & angels, const cppoptlib::Vector<double>
     if (coords[dim-1] < 0) {
         angels[dim-2] = 2 * PI - angels[dim-2];
     }
-    
+    cout << angels.transpose() << endl;
 }
 
 void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matrix<double> &temp) {
@@ -188,18 +188,23 @@ double dist_squared(const cppoptlib::Vector<double> & angles1,const cppoptlib::V
 
 
 
+
+
+
+
+
+
 void ToAngles(cppoptlib::Matrix<double> & all_points, cppoptlib::Matrix<double> & all_angles, int dim)
 {
-	cppoptlib::Vector<double> apoint(dim,0);
-    cppoptlib::Vector<double> aangle(dim-1,0);
+ 
+	cppoptlib::Vector<double> apoint(dim);
+    cppoptlib::Vector<double> aangle(dim-1);
 	for (int i = 0; i < all_points.rows(); i++) {
         apoint = all_points.row(i);
         ToAngle(aangle, apoint);
         all_angles.row(i) = aangle;
     }
 }
-
-
 
 
 
@@ -590,10 +595,9 @@ int main() {
         }
     }
     
+    ToAngles(X, A, dim);
     
     
-
-    ToAngles(A,X, dim);
     ToVector(A,V);
     
     minimizeEnergy f(radius, s, dim, numpts, cubes_per_side, pow(cubes_per_side, dim), max_neighbor);
