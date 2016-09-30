@@ -12,6 +12,19 @@
 #ifndef LBFGSSOLVER_H_
 #define LBFGSSOLVER_H_
 
+
+
+
+// Need to fix writeFiles 
+// Need to convert to n d
+// Fix search Direction or q
+
+
+
+
+
+
+
 namespace std {
     void writeFiles (ofstream & outputfile, string name, cppoptlib::Vector<double> V, int dim){
         
@@ -79,6 +92,8 @@ class LbfgsSolver : public ISolver<T, 1> {
         Vector<T> alpha = Vector<T>::Zero(m);
         Vector<T> grad(DIM), q(DIM), grad_old(DIM), s(DIM), y(DIM);
         objFunc.gradient(x0, grad);
+		
+         printf("grad's norm is: %f\n",grad.norm()); 
         Vector<T> x_old = x0;
 
         size_t iter = 0;
@@ -94,7 +109,9 @@ class LbfgsSolver : public ISolver<T, 1> {
                 break;
             }
             //Algorithm 7.4 (L-BFGS two-loop recursion)
-            q = grad;
+			// Need to check why q fails 
+			//
+			q = grad;
             const int k = std::min(m, iter);
             
             // for i = k − 1, k − 2, . . . , k − m
@@ -102,7 +119,7 @@ class LbfgsSolver : public ISolver<T, 1> {
                 // alpha_i <- rho_i*s_i^T*q
                 double product = static_cast<Vector<T>>(sVector.col(i))
                 .dot(static_cast<Vector<T>>(yVector.col(i)));
-                const double rho = 1.0 / product;
+			   	const double rho = 1.0 / product;
                 alpha(i) = rho * static_cast<Vector<T>>(sVector.col(i)).dot(q);
                 // q <- q - alpha_i*y_i
                 q = q - alpha(i) * yVector.col(i);
@@ -121,7 +138,6 @@ class LbfgsSolver : public ISolver<T, 1> {
                 // r <- r + s_i * ( alpha_i - beta)
                 q = q + sVector.col(i) * (alpha(i) - beta);
             }
-            
             // stop with result "H_k*f_f'=q"
 
             // any issues with the descent direction ?
@@ -134,12 +150,10 @@ class LbfgsSolver : public ISolver<T, 1> {
                 iter = 0;
                 alpha_init = 1.0;
             }
-
-
+	
             // find steplength
             WolfeHeuristic<T, decltype(objFunc), 1>::linesearch(x0, -q,  objFunc, alpha_init) ;
             // update guess
-            
             
 //            x0 = x0 - rate * q;
             
@@ -192,11 +206,11 @@ class LbfgsSolver : public ISolver<T, 1> {
                 outputfile.open(name.c_str());
                 
                 printf("Energy: %f\n", objFunc.value(x0));
-                writeFiles(outputfile, name, x0, 3);
+                // writeFiles(outputfile, name, x0, 3);
                 
                 outputfile.close();
             }
-            
+            printf("Point 4 \n");
             
             ++this->m_current.iterations;
             this->m_current.gradNorm = grad.template lpNorm<Eigen::Infinity>();

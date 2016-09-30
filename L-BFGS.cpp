@@ -190,14 +190,10 @@ void ComputeJacobian(const double & theta, const double & phi, cppoptlib::Matrix
 
 void ToAngles(cppoptlib::Matrix<double> & all_points, cppoptlib::Matrix<double> & all_angles)
 {
-    //cppoptlib::Matrix<double> angles(numpts, dim-1);
-    for (int i = 0; i < all_points.rows(); i++) {
-        double x = all_points(i,0);
-        double y = all_points(i,1);
-        double z = all_points(i,2);
-        double r = sqrt(x*x+y*y+z*z);
-        all_angles(i,0) = atan2(y,x);
-        all_angles(i,1) = acos(z/r);
+	// cppoptlib::Vector<double> apoint();     
+	for (int i = 0; i < all_points.rows(); i++) {
+        
+
     }
 }
 
@@ -255,7 +251,7 @@ void writeFile (ofstream & outputfile, string name, cppoptlib::Vector<double> V,
     
     for (int i =0; i < V.rows()/c; i++) {
         tmp = V.segment(i*c, c);
-        To3D(tmp, tmp2);
+        ToND(tmp, tmp2);
         
         
         outputfile << tmp2(0);
@@ -326,13 +322,16 @@ public:
             }
         }
 //        cout << fixed;
-//        cout << "Energy: " << total_energy << endl;
+        cout << "Energy: " << total_energy << endl;
         
         return total_energy;
     }
     
     
-
+	// need to debug gradient here
+	// get to infinite when execute
+	// doubt that cutoff prime or cutoff should change as well
+	//
     void gradient(const cppoptlib::Vector<double> &x, cppoptlib::Vector<double> &grad) {
         int dim_angle = dim-1;
         int max_neighbor = Cubes.rows();
@@ -341,7 +340,7 @@ public:
         cppoptlib::Vector<double> temp_sum(dim), temp(dim);
         cppoptlib::Matrix<double> temp_jacobian(dim, dim_angle);
         temp_sum.setZero();
-        BuildIndex(x);
+		BuildIndex(x);
         
         // find the neighbor_cube_indices for each cubes and calculate the energy.
         for (int index_cube = 0; index_cube < Cubes.cols(); ++index_cube)  
@@ -374,12 +373,11 @@ public:
                     }
                 }
                 //
-                
-                ComputeJacobian(x(point_index*dim_angle+0), x(point_index*dim_angle+1), temp_jacobian);
+                ComputeJacobianN(x, temp_jacobian);
                 grad.segment(point_index*dim_angle, dim_angle) = temp_sum.transpose() * temp_jacobian;
             }
         }
-
+		printf("Point 1 \n");
     }
 };
 
@@ -402,7 +400,8 @@ double minimizeEnergy::TruncatedEnergy(const cppoptlib::Vector<double> & V,
             }
         }
     }
-    return energy;
+
+	return energy;
 }
 
 
@@ -452,7 +451,7 @@ void minimizeEnergy::BuildIndex(const cppoptlib::Vector<double> & x){
     cppoptlib::Vector<double> temp_vector(dim);
     for (int i=0; i<numpts; ++i)
     {
-        To3D(x.segment((dim-1)*i, dim-1), temp_vector);
+        ToND(x.segment((dim-1)*i, dim-1), temp_vector);
         ptsND.col(i) = temp_vector.transpose();
         int max_neighbor = Cubes.rows();
         int cube_index = Point2Cube(ptsND.col(i));
@@ -503,19 +502,19 @@ void randptSphere(double coordinates[], int dim){
 /////////////////////////////////////////////////////////////////////////////////
 int main() {
     
-   int  dim = 20; 
-    cppoptlib::Vector<double> test1(dim), test2(dim);
-    cppoptlib::Vector<double> vec(dim+1);
-    test1 = PI/4.0 * cppoptlib::Vector<double>::Ones(20);
-    test2 =  3.0*PI/4.0 * cppoptlib::Vector<double>::Ones(20);
-    test2[dim-1] = 5.0*PI/4.0;
+//	int  dim = 20; 
+//    cppoptlib::Vector<double> test1(dim), test2(dim);
+//    cppoptlib::Vector<double> vec(dim+1);
+//    test1 = PI/4.0 * cppoptlib::Vector<double>::Ones(20);
+//    test2 =  3.0*PI/4.0 * cppoptlib::Vector<double>::Ones(20);
+//    test2[dim-1] = 5.0*PI/4.0;
 //    cout << test1.transpose() << endl;
 //    cout << test2.transpose() << endl;
 //    cout << dist_squared(test1, test2) << endl;
 
-    ToND(test2, vec);
-    ToAngle(test1, vec);
-    cout << (test2-test1).norm() << endl;
+//    ToND(test2, vec);
+//    ToAngle(test1, vec);
+//    cout << (test2-test1).norm() << endl;
     Eigen::MatrixXf m(4,4);
     m <<  1, 2, 3, 4,
         5, 6, 7, 8,
@@ -526,90 +525,91 @@ int main() {
     
 	// test the ComputeJacobianN
 	cppoptlib::Vector<double> ang1(5);
-	ang1 << PI/3, PI/6, PI/4, PI/3, 3*PI/4;
+	ang1 << PI/2, PI/5, PI/7, PI/3, 3*PI/8;
 	cppoptlib::Matrix<double> jac(6,5);
 	ComputeJacobianN(ang1,jac);
 	cout << jac << endl;
+	cout << "\n\n\n\n"; 
 
-
+	//test ends
     
     
     
     // declare all the parameter used.
-//    double s, radius;
-//    int dim = 0, numpts=0, c=0, cubes_per_side=0, max_neighbor=0, numFile=0, numIteration=0;
-//    bool infile;
-//    ifstream inputfile, pointfile;
-//    ofstream outputfile;
-//
-//    
-//    openFile(inputfile, "control.inp");
-//    string filename = ParseControlFile(inputfile, dim, numpts, s, c, max_neighbor, numFile, numIteration, infile);
-//    inputfile.close();
-//    
-//    
-//    
-//    radius = c*pow(numpts,-1.0/(dim-1));
-//    cubes_per_side = ceil(2/radius);
-//    
-//    
-//    
-//    
-//    cppoptlib::Matrix<double> X(numpts, dim), A(numpts, dim-1);
-//    cppoptlib::Vector<double> V(A.size()), G(A.size()), GFull(A.size());
-//    
-//    // read points
-//    if (infile)
-//    {
-//        openFile(pointfile, filename);
-//        int lineNumber = 0;
-//        while (!pointfile.eof() && lineNumber < numpts)
-//        {
-//            for (int i=0; i<dim;  ++i) pointfile >> X(lineNumber, i);
-//            lineNumber++;
-//        }
-//        pointfile.close();
-//    }
-//    // generate random configuration
-//    else
-//    {
-//        srand(time(0));
-//        double apoint[dim];
-//        for (int i = 0; i < numpts; i++) {
-//            randptSphere(apoint, dim);
-//            for (int j = 0; j < dim; j++) {
-//                X(i, j) = apoint[j];
-//            }
-//        }
-//    }
-//    
-//    
-//    
-//
-//    ToAngles(X,A);
-//    ToVector(A,V);
-//    
-//    minimizeEnergy f(radius, s, dim, numpts, cubes_per_side, pow(cubes_per_side, dim), max_neighbor);
-//    cout << "Energy without cutoff:      " << Energy(V, s, dim-1) << endl;
-//    cout << "Energy with cutoff:         " << f(V) << endl;
-//
-//    
-//    cppoptlib::LbfgsSolver<double> solver;
-//    
-//    solver.setNumFile(numFile);
-//    solver.setNumIteration(numIteration);
-////    solver.setFileName(filename);
-//    
-//    solver.minimize(f, V);
-//    
-//    
-//    cout << "Energy now: " << f(V) << endl;
-//    cout << "Full energy now: " << Energy(V, s, dim-1) << endl;
-//    
-//    
-//    
-//    writeFile(outputfile, "output.txt", V, dim);
-//    return 0;
+    double s, radius;
+    int dim = 0, numpts=0, c=0, cubes_per_side=0, max_neighbor=0, numFile=0, numIteration=0;
+    bool infile;
+    ifstream inputfile, pointfile;
+    ofstream outputfile;
+
+    
+    openFile(inputfile, "control.inp");
+    string filename = ParseControlFile(inputfile, dim, numpts, s, c, max_neighbor, numFile, numIteration, infile);
+    inputfile.close();
+    
+    
+    
+    radius = c*pow(numpts,-1.0/(dim-1));
+    cubes_per_side = ceil(2/radius);
+    
+    
+    
+    
+    cppoptlib::Matrix<double> X(numpts, dim), A(numpts, dim-1);
+    cppoptlib::Vector<double> V(A.size()), G(A.size()), GFull(A.size());
+    
+    // read points
+    if (infile)
+    {
+        openFile(pointfile, filename);
+        int lineNumber = 0;
+        while (!pointfile.eof() && lineNumber < numpts)
+        {
+            for (int i=0; i<dim;  ++i) pointfile >> X(lineNumber, i);
+            lineNumber++;
+        }
+        pointfile.close();
+    }
+    // generate random configuration
+    else
+    {
+        srand(time(0));
+        double apoint[dim];
+        for (int i = 0; i < numpts; i++) {
+            randptSphere(apoint, dim);
+            for (int j = 0; j < dim; j++) {
+                X(i, j) = apoint[j];
+            }
+        }
+    }
+    
+    
+    
+
+    ToAngle(A,X);
+    ToVector(A,V);
+    
+    minimizeEnergy f(radius, s, dim, numpts, cubes_per_side, pow(cubes_per_side, dim), max_neighbor);
+    cout << "Energy without cutoff:      " << Energy(V, s, dim-1) << endl;
+    cout << "Energy with cutoff:         " << f(V) << endl;
+
+    
+    cppoptlib::LbfgsSolver<double> solver;
+    
+    solver.setNumFile(numFile);
+    solver.setNumIteration(numIteration);
+//    solver.setFileName(filename);
+    
+    solver.minimize(f, V);
+    
+    
+    cout << "Energy now: " << f(V) << endl;
+    cout << "Full energy now: " << Energy(V, s, dim-1) << endl;
+    
+    
+    
+    writeFile(outputfile, "output.txt", V, dim);
+    return 0;
 }
 
 
