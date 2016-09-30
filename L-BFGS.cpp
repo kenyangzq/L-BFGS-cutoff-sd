@@ -162,40 +162,47 @@ double dist_squared(const cppoptlib::Vector<double> & angles1,const cppoptlib::V
 
 
 
-void To3D(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords)
+//void To3D(const cppoptlib::Vector<double> & angles, cppoptlib::Vector<double> & coords)
+//{
+//    coords(0) = cos(angles(0)) * sin(angles(1));
+//    coords(1) = sin(angles(0)) * sin(angles(1));
+//    coords(2) = cos(angles(1));
+//}
+
+
+
+//void ComputeJacobian(const double & theta, const double & phi, cppoptlib::Matrix<double> & temp){
+//    //x = sin(phi) cos(theta)
+//    //y = sin(phi) sin(theta)
+//    //z = cos(phi)
+//    //
+//    // derivatives w.r.t. theta:
+//    temp(0,0) = -sin(phi) * sin(theta); // x
+//    temp(1,0) =  sin(phi) * cos(theta); // y
+//    temp(2,0) =  0;                      // z
+//    // derivatives w.r.t. phi:
+//    temp(0,1) =  cos(phi) * cos(theta); // x
+//    temp(1,1) =  cos(phi) * sin(theta); // y
+//    temp(2,1) = -sin(phi);             // z
+//}
+
+
+
+void ToAngles(cppoptlib::Matrix<double> & all_points, cppoptlib::Matrix<double> & all_angles, int dim)
 {
-    coords(0) = cos(angles(0)) * sin(angles(1));
-    coords(1) = sin(angles(0)) * sin(angles(1));
-    coords(2) = cos(angles(1));
-}
-
-
-
-void ComputeJacobian(const double & theta, const double & phi, cppoptlib::Matrix<double> & temp){
-    //x = sin(phi) cos(theta)
-    //y = sin(phi) sin(theta)
-    //z = cos(phi)
-    //
-    // derivatives w.r.t. theta:
-    temp(0,0) = -sin(phi) * sin(theta); // x
-    temp(1,0) =  sin(phi) * cos(theta); // y
-    temp(2,0) =  0;                      // z
-    // derivatives w.r.t. phi:
-    temp(0,1) =  cos(phi) * cos(theta); // x
-    temp(1,1) =  cos(phi) * sin(theta); // y
-    temp(2,1) = -sin(phi);             // z
-}
-
-
-
-void ToAngles(cppoptlib::Matrix<double> & all_points, cppoptlib::Matrix<double> & all_angles)
-{
-	// cppoptlib::Vector<double> apoint();     
+	cppoptlib::Vector<double> apoint(dim,0);
+    cppoptlib::Vector<double> aangle(dim-1,0);
 	for (int i = 0; i < all_points.rows(); i++) {
-        
-
+        apoint = all_points.row(i);
+        ToAngle(aangle, apoint);
+        all_angles.row(i) = aangle;
     }
 }
+
+
+
+
+
 
 
 
@@ -586,7 +593,7 @@ int main() {
     
     
 
-    ToAngle(A,X);
+    ToAngles(A,X, dim);
     ToVector(A,V);
     
     minimizeEnergy f(radius, s, dim, numpts, cubes_per_side, pow(cubes_per_side, dim), max_neighbor);
