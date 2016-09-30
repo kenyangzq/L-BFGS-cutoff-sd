@@ -93,7 +93,6 @@ class LbfgsSolver : public ISolver<T, 1> {
         Vector<T> grad(DIM), q(DIM), grad_old(DIM), s(DIM), y(DIM);
         objFunc.gradient(x0, grad);
 		
-         printf("grad's norm is: %f\n",grad.norm()); 
         Vector<T> x_old = x0;
 
         size_t iter = 0;
@@ -210,7 +209,6 @@ class LbfgsSolver : public ISolver<T, 1> {
                 
                 outputfile.close();
             }
-            printf("Point 4 \n");
             
             ++this->m_current.iterations;
             this->m_current.gradNorm = grad.template lpNorm<Eigen::Infinity>();

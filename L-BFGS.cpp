@@ -119,10 +119,9 @@ void ToAngle(cppoptlib::Vector<double> & angels, const cppoptlib::Vector<double>
     if (coords[dim-1] < 0) {
         angels[dim-2] = 2 * PI - angels[dim-2];
     }
-    cout << angels.transpose() << endl;
 }
 
-void ComputeJacobianN(const cppoptlib::Vector<double> & angles, cppoptlib::Matrix<double> &temp) {
+void ComputeJacobianN(const cppoptlib::Vector<double> &angles, cppoptlib::Matrix<double> &temp) {
 	// all angles range from 0 to PI except for the last one, which range from 0 to 2PI.
 	// The Jacobian Matrix should be size n by n-1;
 	// Multiply by a -tan value if it's differentiating cos
@@ -168,9 +167,6 @@ double dist_squared(const cppoptlib::Vector<double> & angles1,const cppoptlib::V
 //    coords(1) = sin(angles(0)) * sin(angles(1));
 //    coords(2) = cos(angles(1));
 //}
-
-
-
 //void ComputeJacobian(const double & theta, const double & phi, cppoptlib::Matrix<double> & temp){
 //    //x = sin(phi) cos(theta)
 //    //y = sin(phi) sin(theta)
@@ -334,7 +330,7 @@ public:
             }
         }
 //        cout << fixed;
-        cout << "Energy: " << total_energy << endl;
+//        cout << "Energy: " << total_energy << endl;
         
         return total_energy;
     }
@@ -385,11 +381,13 @@ public:
                     }
                 }
                 //
-                ComputeJacobianN(x, temp_jacobian);
+                temp_jacobian.setZero();
+                ComputeJacobianN(x.segment(point_index*dim_angle,dim_angle), temp_jacobian);
+                
                 grad.segment(point_index*dim_angle, dim_angle) = temp_sum.transpose() * temp_jacobian;
             }
+            
         }
-		printf("Point 1 \n");
     }
 };
 

@@ -26,7 +26,6 @@ namespace cppoptlib {
             // evaluate phi(0)
             T phi0 = objFunc.value(x0);
             
-            printf("Norm of SearchDir: %f\n",searchDir.norm()); 
             
             // evaluate phi'(0)
             Vector<T> grad(x.rows());
